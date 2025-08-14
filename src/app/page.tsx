@@ -1,103 +1,71 @@
-import Image from "next/image";
+'use client'
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { useState } from "react";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+interface Sentence {
+  sentence: string;
 }
+
+async function getSentence(): Promise<string> {
+  const response = await fetch("/api/love", {
+        method: "GET",
+  })
+  const jsonData = await response.json() as Sentence;
+  return jsonData.sentence
+}
+
+const HomePage = () => {
+  const [loveSentence, setLoveSentence] = useState("Ich liebe dich bis zum Mond un zuruch.")
+  const [loading, setLoading] = useState(false)
+
+  const handleRefresh = async () => {
+    setLoading(true)
+    try {
+      const sentence = await getSentence()
+      setLoveSentence(sentence)
+    } catch (error) {
+      console.error("Failed to fetch love sentence:", error)
+      // Optionally set an error message or keep the current sentence
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-white via-pink-100 to-pink-300">
+    <Card className="w-full max-w-xl shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-center text-lg">Do you believe in love?💕</CardTitle>
+        <CardDescription className="text-center">
+          Well, your girlfriend (Clelia) does - and because of you!🥺👉👈
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+       <p className="text-center">So here is a sentence to show you all her love:</p>
+       <br />
+       <p className="font-medium text-pink-600 italic text-center">{loveSentence}</p>
+      </CardContent>
+      <CardFooter className="flex-col gap-2">
+        <p>Want to see another love sentence? Click below!👇</p>
+        <Button 
+          onClick={handleRefresh} 
+          className="w-full bg-gradient-to-br from-pink-300 via-red-400 to-red-600" 
+          disabled={loading}
+        >
+          {loading ? "Loading..." : "🤍🤍🤍"}
+        </Button>
+      </CardFooter>
+    </Card>
+    </div>
+  )
+}
+
+export default HomePage
